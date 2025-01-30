@@ -1,0 +1,59 @@
+<section id="pedir-turno"></section>
+    <h2>Pedir Turno</h2>
+    <form action="/nuevo-turno" method="POST">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required>
+        <button type="submit">Pedir Turno</button>
+    </form>
+</section>
+
+<section id="turnos">
+    <h2>Turnos</h2>
+    <div class="turnos-seccion">
+        <h3>En Espera</h3>
+        {{#each turnos}}
+        {{#ifCond this.estado '==' 'En Espera'}}
+        <div class="turno">
+            <p>{{this.nombre}}</p>
+            <form action="/actualizar-turno" method="POST">
+                <input type="hidden" name="id" value="{{this.id}}">
+                <select name="estado">
+                    <option value="En Espera" selected>En Espera</option>
+                    <option value="En Progreso">En Progreso</option>
+                    <option value="Orden Lista">Orden Lista</option>
+                </select>
+                <button type="submit">Actualizar</button>
+            </form>
+        </div>
+        {{/ifCond}}
+        {{/each}}
+    </div>
+    <div class="turnos-seccion">
+        <h3>En Progreso</h3>
+        {{#each turnos}}
+        {{#ifCond this.estado '==' 'En Progreso'}}
+        <div class="turno">
+            <p>{{this.nombre}}</p>
+            <form action="/actualizar-turno" method="POST">
+                <input type="hidden" name="id" value="{{this.id}}">
+                <select name="estado">
+                    <option value="En Progreso" selected>En Progreso</option>
+                    <option value="Orden Lista">Orden Lista</option>
+                </select>
+                <button type="submit">Actualizar</button>
+            </form>
+        </div>
+        {{/ifCond}}
+        {{/each}}
+    </div>
+    <div class="turnos-seccion">
+        <h3>Orden Lista</h3>
+        {{#each turnos}}
+        {{#ifCond this.estado '==' 'Orden Lista'}}
+        <div class="turno">
+            <p>{{this.nombre}}</p>
+        </div>
+        {{/ifCond}}
+        {{/each}}
+    </div>
+</section>
