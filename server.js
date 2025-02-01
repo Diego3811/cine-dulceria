@@ -1,48 +1,39 @@
 const express = require('express');
-const hbs = require('express-hbs');
-const bodyParser = require('body-parser');
-const fs = require('fs');
+const session = require('express-session');
+const mongoose = require('mongoose');
+const hbs = require('hbs');
+const MongoStore = require('connect-mongo');
+const authRoutes = require('./routes/auth');
+const turnosRoutes = require('./routes/turnos');
+const dbConfig = require('./config/db');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Configuración de express-hbs
-app.engine('hbs', hbs.express4({
-    extname: '.hbs',
-    defaultLayout: __dirname + '/views/layouts/main.hbs',
-    layoutsDir: __dirname + '/views/layouts',
-    partialsDir: __dirname + '/views/partials'
-}));
+// Conectar a la base de datos
+mongoose.connect(dbConfig.url, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Base de datos conectada'))
+    .catch(err => console.error(err));
+
+// Configuración de hbs
 app.set('view engine', 'hbs');
-app.set('views', __dirname + '/views');
+hbs.registerPartials(__dirname + '/views/partials');
 
-// Middleware para servir archivos estáticos y parsear el cuerpo de las solicitudes
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: dbConfig.url })
+}));
+
+// Rutas
+app.use('/', authRoutes);
+app.use('/turnos', turnosRoutes);
+
+// Servir archivos estáticos
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Simulación de base de datos
-let turnos = JSON.parse(fs.readFileSync('db.json', 'utf-8'));
-
-// Ruta principal
-app.get('/', (req, res) => {
-    res.render('home', { turnos });
-});
-
-// Ruta para agregar un nuevo turno
-app.post('/nuevo-turno', (req, res) => {
-    const nuevoTurno = { id: Date.now(), estado: 'En Espera', ...req.body };
-    turnos.push(nuevoTurno);
-    fs.writeFileSync('db.json', JSON.stringify(turnos, null, 2));
-    res.redirect('/');
-});
-
-// Ruta para actualizar el estado de un turno
-app.post('/actualizar-turno', (req, res) => {
-    const { id, estado } = req.body;
-    turnos = turnos.map(turno => turno.id == id ? { ...turno, estado } : turno);
-    fs.writeFileSync('db.json', JSON.stringify(turnos, null, 2));
-    res.redirect('/');
-});
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);

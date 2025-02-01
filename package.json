@@ -1,9 +1,14 @@
 {
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
+    "connect-mongo": "^5.1.0",
     "epress": "^0.0.1-security",
     "express": "^4.21.2",
-    "express-hbs": "^2.5.0"
+    "express-hbs": "^2.5.0",
+    "express-session": "^1.18.1",
+    "hbs": "^4.2.0",
+    "mongoose": "^8.9.6"
   },
   "name": "cine-dulceria",
   "version": "1.0.0",
